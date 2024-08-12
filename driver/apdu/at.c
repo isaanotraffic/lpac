@@ -95,7 +95,6 @@ static void apdu_interface_disconnect(struct euicc_ctx *ctx)
 
 static int apdu_interface_transmit(struct euicc_ctx *ctx, uint8_t **rx, uint32_t *rx_len, const uint8_t *tx, uint32_t tx_len)
 {
-    printf("[ITAY] rx_len: %u, tx_len: %u\n", rx_len, tx_len);
     int fret = 0;
     int ret;
     char *response = NULL;
@@ -110,17 +109,13 @@ static int apdu_interface_transmit(struct euicc_ctx *ctx, uint8_t **rx, uint32_t
     }
 
     // TODO FIXME BUG HACK CHANGE 16 TO %u!!!!
-    fprintf(stdout, "AT+CGLA=%lx,", logic_channel);
-    fprintf(stdout, "%u,\"", tx_len * 2);
     fprintf(fuart, "AT+CGLA=%lx,", logic_channel);
     fprintf(fuart, "%u,\"", tx_len * 2);
     for (uint32_t i = 0; i < tx_len; i++)
     {
         fprintf(fuart, "%02X", (uint8_t)(tx[i] & 0xFF));
-        fprintf(stdout, "%02X", (uint8_t)(tx[i] & 0xFF));
     }
     fprintf(fuart, "\"\r\n");
-    fprintf(stdout, "\"\r\n");
     if (at_expect(&response, "+CGLA: "))
     {
         goto err;
