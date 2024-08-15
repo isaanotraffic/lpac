@@ -108,7 +108,9 @@ static int apdu_interface_transmit(struct euicc_ctx *ctx, uint8_t **rx, uint32_t
         return -1;
     }
 
-    // TODO FIXME BUG HACK CHANGE 16 TO %u!!!!
+    // This fprintf is splitted into 2 lines.
+    // Without this split, the size does not
+    // print accordingly on 32-bit ARMv7l machines
     fprintf(fuart, "AT+CGLA=%lx,", logic_channel);
     fprintf(fuart, "%u,\"", tx_len * 2);
     for (uint32_t i = 0; i < tx_len; i++)
