@@ -1,13 +1,13 @@
 include(CMakeDependentOption)
 cmake_dependent_option(LPAC_DYNAMIC_DRIVERS "Build lpac/libeuicc driver backends as a dynamic library" OFF "LPAC_DYNAMIC_LIBEUICC" OFF)
 
-option(LPAC_WITH_APDU_PCSC "Build APDU PCSC Backend (requires PCSC libraries)" OFF)
-option(LPAC_WITH_APDU_AT "Build APDU AT Backend" ON)
+option(LPAC_WITH_APDU_PCSC "Build APDU PCSC Backend (requires PCSC libraries)" ON)
+option(LPAC_WITH_APDU_AT "Build APDU AT Backend" Linux)
 option(LPAC_WITH_APDU_GBINDER "Build APDU Gbinder backend for libhybris devices (requires gbinder headers)" OFF)
 option(LPAC_WITH_APDU_QMI "Build QMI backend for Qualcomm devices (requires libqmi)" OFF)
 option(LPAC_WITH_APDU_QMI_QRTR "Build QMI-over-QRTR backend for Qualcomm devices (requires libqrtr and libqmi headers)" OFF)
+
 option(LPAC_WITH_HTTP_CURL "Build HTTP Curl interface" ON)
-option(LPAC_STATIC_LINK "Statically link OpenSSL and curl" OFF)
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} DIR_INTERFACE_SRCS)
 if(LPAC_DYNAMIC_DRIVERS)
@@ -95,22 +95,7 @@ if(LPAC_WITH_HTTP_CURL)
     target_sources(euicc-drivers PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/http/curl.c)
     if(WIN32)
         target_link_libraries(euicc-drivers ${DL_LIBRARY})
-    elseif(LPAC_STATIC_LINK)
-        # Static linking with curl and OpenSSL
-        set(CURL_INCLUDE_DIRS /usr/xcc/armv7l-linux-musleabihf-cross/include/)
-        set(CURL_LIBRARIES /usr/xcc/armv7l-linux-musleabihf-cross/lib/libcurl.a)
-        include_directories(${CURL_INCLUDE_DIRS})
-
-        set(OPENSSL_ROOT_DIR /work/notraffic/openssl-3.0.9)
-        set(OPENSSL_INCLUDE_DIR /usr/xcc/include/)
-        set(OPENSSL_SSL_LIBRARY /usr/xcc/lib/libssl.a)
-        set(OPENSSL_CRYPTO_LIBRARY /usr/xcc/lib/libcrypto.a)
-
-        find_package(OpenSSL REQUIRED)
-        include_directories(${OPENSSL_INCLUDE_DIR})
-        target_link_libraries(euicc-drivers ${CURL_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
     else()
-        # Dynamic linking with curl and OpenSSL
         find_package(CURL REQUIRED)
         target_link_libraries(euicc-drivers curl)
         if(LPAC_DYNAMIC_DRIVERS)
